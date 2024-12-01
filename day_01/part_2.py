@@ -10,9 +10,6 @@ for line in input:
         continue
     left.append(int(numbers[0]))
     right.append(int(numbers[1]))
-    
-left.sort()
-right.sort()
 
 similarity_score = 0
 for l in left:
