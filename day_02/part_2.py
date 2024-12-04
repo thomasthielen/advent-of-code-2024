@@ -1,6 +1,6 @@
 import numpy as np
 
-with open('input.txt') as f: # j3b: 520
+with open('test.txt') as f:
     input = f.readlines()
     
 def check_diff_accepts(diff):
