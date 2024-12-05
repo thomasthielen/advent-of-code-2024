@@ -1,6 +1,6 @@
 import numpy as np
 
-with open('test.txt') as f:
+with open('test_1.txt') as f:
     input = f.readlines()
 
 def scan_matrix(sm):
