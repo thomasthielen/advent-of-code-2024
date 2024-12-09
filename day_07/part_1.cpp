@@ -1,3 +1,4 @@
+#include <chrono>
 #include <cmath>
 #include <iostream>
 #include <fstream>
@@ -11,7 +12,8 @@ using ull = unsigned long long;
 list<vector<ull>> equations;
 
 int main() {
-    fstream file ("input.txt");
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    fstream file ("test.txt");
     string line;
     if (file.is_open()) {
         while(getline(file,line)) {
@@ -47,9 +49,6 @@ int main() {
                     total_value *= v[j+2];
                 }
             }
-            if (total_value > test_value) {
-                continue;
-            }
             if (total_value == test_value) {
                 sum += total_value;
                 break;
@@ -57,4 +56,6 @@ int main() {
         }
     }
     cout << "Result: " << sum;
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::cout << "\nCalculation time = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << " microseconds" << std::endl;
 }
