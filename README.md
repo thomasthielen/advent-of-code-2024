@@ -2,4 +2,5 @@
 
 |Days   |Language   |
 |---|---|
-|01-??   |Python   |
+|01-06  |Python   |
+|07-??  |C++ |
