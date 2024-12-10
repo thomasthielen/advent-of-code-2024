@@ -1,8 +1,10 @@
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <iostream>
 #include <fstream>
 #include <list>
+#include <set>
 #include <string>
 #include <vector>
 using namespace std;
@@ -11,21 +13,9 @@ using ull = unsigned long long;
 
 list<vector<ull>> equations;
 
-vector<int> increase_by_one(vector<int> operators, int index) {
-    if (index >= operators.size()) {
-        cout << "\nError at operator increase\n";
-    }
-    if (operators[index] == 2) {
-        operators[index] = 0;
-        return increase_by_one(operators, index + 1);
-    }
-    operators[index]++;
-    return operators;
-}
-
 int main() {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    fstream file ("test.txt");
+    fstream file ("input.txt");
     string line;
     if (file.is_open()) {
         while(getline(file,line)) {
@@ -50,50 +40,25 @@ int main() {
     ull sum = 0;
     for (vector<ull> v : equations) {
         ull test_value = v[0];
-        vector<int> operators = {0,1,2}; // +, *, ||
-        int places = v.size() - 2;
-        int total_loops = pow(operators.size(), places);
+        int operator_count = v.size() - 2;
+        set<ull> interim_totals = {v[1]};
 
-        vector<int> placed_operators;
-
-        for (int i = 0; i < places; ++i) {
-            placed_operators.push_back(operators[0]);
+        for (int i = 2; i < operator_count + 2; ++i) {
+            set<ull> next_interim_totals;
+            for (ull left_operand : interim_totals) {
+                if (left_operand + v[i] <= test_value)
+                    next_interim_totals.insert(left_operand + v[i]);
+                if (left_operand * v[i] <= test_value)
+                    next_interim_totals.insert(left_operand * v[i]);
+                ull concatenation = stoll(to_string(left_operand) + to_string(v[i]));
+                if (concatenation <= test_value)
+                    next_interim_totals.insert(concatenation);
+            }
+            interim_totals = next_interim_totals;
         }
 
-        for (int i = 0; i < total_loops; ++i) {
-            ull total_value = v[1];
-            // calculate the total value via all operators
-            for (int place = 0; place < placed_operators.size(); ++place) {
-                switch(placed_operators[place]) {
-                    case 0: // +
-                        total_value += v[2+place];
-                        break;
-                    case 1: // *
-                        total_value *= v[2+place];
-                        break;
-                    case 2: { // ||
-                        string tv_string = to_string(total_value);
-                        string to_be_concatenated = to_string(v[2+place]);
-                        string concatenation = tv_string + to_be_concatenated;
-                        total_value = stoll(concatenation);
-                        break;}
-                    default:
-                        cout << "\nError at operator recognition\n";
-                        break;
-                }
-                if (total_value > test_value) {
-                    break;
-                }
-            }
-            // compare the total value
-            if (total_value == test_value) {
-                sum += total_value;
-                break;
-            }
-            // change the operators (except in the last iteration)
-            if (i < total_loops - 1) {
-                placed_operators = increase_by_one(placed_operators, 0);
-            }
+        if(interim_totals.find(test_value) != interim_totals.end()) {
+            sum += test_value;
         }
     }
     cout << "\nResult: " << sum;    
