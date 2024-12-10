@@ -53,8 +53,6 @@ int main() {
     bottom_limit = matrix.size();
     set<pair<int,int>> antinodes;
 
-    int sum = 0;
-
     map<char,vector<pair<int,int>>>::iterator it;
     for (it = frequencies.begin(); it != frequencies.end(); it++) {
         vector<pair<int,int>> antennas = it->second;
@@ -62,21 +60,27 @@ int main() {
             for (int j = i+1; j < antennas.size(); ++j) {
                 pair<int,int> step = make_pair(antennas[i].first - antennas[j].first, 
                                                antennas[i].second - antennas[j].second);
-                pair<int,int> antinode_1 = make_pair(antennas[i].first + step.first,
-                                                   antennas[i].second + step.second);
-                pair<int,int> antinode_2 = make_pair(antennas[j].first - step.first,
-                                                   antennas[j].second - step.second);
-                if (check_boundaries(antinode_1)) {
-                    sum += antinodes.insert(antinode_1).second;
+
+                pair<int,int> next_antinode = make_pair(antennas[i].first - step.first,
+                                              antennas[i].second - step.second);
+                while (check_boundaries(next_antinode)) {
+                    antinodes.insert(next_antinode).second;
+                    next_antinode = make_pair(next_antinode.first - step.first,
+                                              next_antinode.second - step.second);
                 }
-                if (check_boundaries(antinode_2)) {
-                    sum += antinodes.insert(antinode_2).second;
+
+                next_antinode = make_pair(antennas[j].first + step.first,
+                                          antennas[j].second + step.second);
+                while (check_boundaries(next_antinode)) {
+                    antinodes.insert(next_antinode).second;
+                    next_antinode = make_pair(next_antinode.first + step.first,
+                                              next_antinode.second + step.second);
                 }
             }
         }
     }
 
-    cout << "\nResult: " << sum;    
+    cout << "\nResult: " << antinodes.size();    
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     std::cout << "\nCalculation time = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << " microseconds" << std::endl;
 }
