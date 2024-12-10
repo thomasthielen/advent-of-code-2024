@@ -1,8 +1,10 @@
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <iostream>
 #include <fstream>
 #include <list>
+#include <set>
 #include <string>
 #include <vector>
 using namespace std;
@@ -13,7 +15,7 @@ list<vector<ull>> equations;
 
 int main() {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    fstream file ("test.txt");
+    fstream file ("input.txt");
     string line;
     if (file.is_open()) {
         while(getline(file,line)) {
@@ -38,24 +40,25 @@ int main() {
     ull sum = 0;
     for (vector<ull> v : equations) {
         ull test_value = v[0];
-        int num_of_operators = v.size() - 2;
-        int num_of_different_operator_assignments = pow(2, num_of_operators);
-        for (int i = 0; i < num_of_different_operator_assignments; ++i) {
-            ull total_value = v[1];
-            for (int j = 0; j < num_of_operators; ++j) {
-                if ((i >> j) & 1) {
-                    total_value += v[j+2];
-                } else {
-                    total_value *= v[j+2];
-                }
+        int operator_count = v.size() - 2;
+        set<ull> interim_totals = {v[1]};
+
+        for (int i = 2; i < operator_count + 2; ++i) {
+            set<ull> next_interim_totals;
+            for (ull left_operand : interim_totals) {
+                if (left_operand + v[i] <= test_value)
+                    next_interim_totals.insert(left_operand + v[i]);
+                if (left_operand * v[i] <= test_value)
+                    next_interim_totals.insert(left_operand * v[i]);
             }
-            if (total_value == test_value) {
-                sum += total_value;
-                break;
-            }
+            interim_totals = next_interim_totals;
+        }
+
+        if(interim_totals.find(test_value) != interim_totals.end()) {
+            sum += test_value;
         }
     }
-    cout << "Result: " << sum;
+    cout << "\nResult: " << sum;    
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    std::cout << "\nCalculation time = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << " microseconds" << std::endl;
+    std::cout << "\nCalculation time = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << " milliseconds" << std::endl;
 }
